@@ -1,25 +1,67 @@
-'use client'
+"use client"
 
-import React,{useState} from 'react'
-import Navbar from '../components/Navbar'
+import React, { useState } from 'react'
+import Container from "../components/Container";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 import Link from 'next/link'
+import { signIn } from 'next-auth/react'
+import { useRouter, redirect } from 'next/navigation'
+import { useSession } from 'next-auth/react';
 
 function LoginPage() {
+
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+
+    const router = useRouter();
+
+    const { data: session } = useSession();
+    if (session) router.replace('welcome');
+
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+
+            const res = await signIn("credentials", {
+                email, password, redirect: false
+            })
+
+            if (res.error) {
+                setError("Invalid credentials");
+                return;
+            }
+
+            router.replace("welcome");
+
+        } catch(error) {
+            console.log(error);
+        }
+    }
+
   return (
-    <div>
-      <Navbar/>
-      <div className='container mx-auto py-5'>
-        <h3>Login Page</h3>
-        <hr className=' my-3'/>
-        <form action="">
-            <input className='block bg-gray-300 p-2 my-2 rounded-md' type="text" placeholder='Enter your username' />
-            <input className='block bg-gray-300 p-2 my-2 rounded-md' type="password" placeholder='Enter your password' />
-            <button type='submit' className='bg-green-500 p-2 rounded-md text-white'>Sign in</button>
-        </form>
-        <hr className='my-3'/>
-        <p>Already have an account? <Link href="/register" className='text-blue-500 hover:underline'>Register</Link></p>
-      </div>
-    </div>
+    <Container>
+        <Navbar />
+            <div className='flex-grow'>
+                <div className="flex justify-center items-center">
+                    <div className='w-[400px] shadow-xl p-10 mt-5 rounded-xl'>
+                        <h3 className='text-3xl'>Login Page</h3>
+                        <hr className='my-3' />
+                        <form onSubmit={handleSubmit}>
+                            <input type="text" onChange={(e) => setEmail(e.target.value)} className='w-full bg-gray-200 border py-2 px-3 rounded text-lg my-2' placeholder='Enter your email' />
+                            <input type="password" onChange={(e) => setPassword(e.target.value)} className='w-full bg-gray-200 border py-2 px-3 rounded text-lg my-2' placeholder='Enter your password' />
+                            <button type='submit' className='bg-green-500 text-white border py-2 px-3 rounded text-lg my-2'>Sign In</button>
+                        </form>
+                        <hr className='my-3' />
+                        <p>Go to <Link href="/register" className='text-blue-500 hover:underline'>Register</Link> Page</p>
+                    </div>
+                </div>
+            </div>
+        <Footer />
+    </Container>
   )
 }
 

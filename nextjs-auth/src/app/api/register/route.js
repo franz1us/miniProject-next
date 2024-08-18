@@ -1,24 +1,22 @@
-import { NextResponse } from "next/server";
-import { connectMongoDB } from "../../../../lib/mongdb";
-import User from "../../../../models/user";
-import bcrypt from "bcryptjs"
+import { NextResponse } from 'next/server'
+import { connectMongoDB } from '../../../../lib/mongdb';
+import User from '../../../../models/user';
+import bcrypt from 'bcryptjs'
 
 export async function POST(req) {
-    try{
-            const {username, email,password} = await req.json();
-            const hashPassword = await bcrypt.hash(password,10);
+    try {
 
-            await connectMongoDB();
-            await User.create({username, email, password: hashPassword});
+        const { name, email, password } = await req.json();
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-            console.log('Username: ',username);
-            console.log('Email: ',email);
-            console.log('Password: ',password);
+        await connectMongoDB();
+        await User.create({ name, email, password: hashedPassword });
 
-            return NextResponse.json({message:"User registered."},{status:201});
+        return NextResponse.json({ message: "User registered." }, { status: 201 })
 
-    }catch(error){
-        return NextResponse.json({message:" An error occured while registrating the user."},{status:500})
+    } catch(error) {
+
+        return NextResponse.json({ message: "An error occured while registering the user." }, { status: 500 })
+
     }
-    
 }
